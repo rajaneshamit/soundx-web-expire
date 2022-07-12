@@ -1,9 +1,9 @@
 package com.anstech.speechtotext.controller;
 
 import java.net.URI;
-import java.util.Collections;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,13 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.springframework.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.anstech.speechtotext.entity.Role;
 import com.anstech.speechtotext.entity.User;
-import com.anstech.speechtotext.enums.RoleName;
-import com.anstech.speechtotext.exceptions.AppException;
+import com.anstech.speechtotext.model.UserResponse;
 import com.anstech.speechtotext.payload.ApiResponse;
 import com.anstech.speechtotext.payload.JwtAuthenticationResponse;
 import com.anstech.speechtotext.payload.LoginRequest;
@@ -53,17 +50,13 @@ public class AuthController {
 		logger.info(" Request firstname {}, password {}, email {},  ", signUpRequest.getFirstName(),
 				signUpRequest.getPassword(), signUpRequest.getEmail());
 
-//		if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-//			return new ResponseEntity(new ApiResponse(false, "Username is already taken!"), HttpStatus.BAD_REQUEST);
-//		}
+		if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+			return new ResponseEntity(new ApiResponse(false, "Email is already taken!"), HttpStatus.BAD_REQUEST);
+		}
 
-//		if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-//			return new ResponseEntity(new ApiResponse(false, "Email Address already in use!"), HttpStatus.BAD_REQUEST);
-//		}
-//
-//		if (userRepository.existsByMobile(signUpRequest.getMobile())) {
-//			return new ResponseEntity(new ApiResponse(false, "Mobile number already in use!"), HttpStatus.BAD_REQUEST);
-//		}
+		if (userRepository.existsByEmail(signUpRequest.getMobile())) {
+			return new ResponseEntity(new ApiResponse(false, "Email Address already in use!"), HttpStatus.BAD_REQUEST);
+		}
 
 		// Creating user's account
 		User user = new User(signUpRequest.getFirstName(), signUpRequest.getLastName(), signUpRequest.getEmail(),
@@ -81,11 +74,12 @@ public class AuthController {
 		// user.setRoles(Collections.singleton(userRole));
 
 		User result = userRepository.save(user);
-
+		UserResponse userResponse = new UserResponse(result.getId(), result.getFirstName(), result.getLastName(),
+				result.getMobile(), result.getEmail());
 		URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/users/{firstname}")
 				.buildAndExpand(result.getFirstName()).toUri();
-
-		return ResponseEntity.created(location).body(new ApiResponse(true, "User registered successfully"));
+		return ResponseEntity.created(location)
+				.body(new ApiResponse(true, "User registered successfully", userResponse));
 	}
 
 	@PostMapping("/signin")

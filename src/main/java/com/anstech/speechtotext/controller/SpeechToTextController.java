@@ -12,7 +12,7 @@ import com.anstech.speechtotext.model.Response;
 import com.anstech.speechtotext.service.SpeechToTextService;
 
 @RestController
-@RequestMapping("rest/api")
+@RequestMapping("/api/auth")
 public class SpeechToTextController {
 
 	public static final String subscriptionKey = "ce6997094d4a4a22a5871fa927aae1ba";

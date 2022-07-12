@@ -68,6 +68,15 @@ public class User {
 		// this.address = address;
 	}
 
+	public User(@NotBlank String firstName, @NotBlank String lastName, @NotBlank String mobile,
+			@NotBlank @Email String email) {
+		super();
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.mobile = mobile;
+		this.email = email;
+	}
+
 	public Long getId() {
 		return id;
 	}
