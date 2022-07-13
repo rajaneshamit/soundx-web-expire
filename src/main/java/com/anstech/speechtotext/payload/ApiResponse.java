@@ -1,11 +1,13 @@
 package com.anstech.speechtotext.payload;
 
+import com.anstech.speechtotext.model.UserResponse;
+
 public class ApiResponse {
 	private Boolean success;
 	private String message;
-	private Object user;
+	private UserResponse user;
 
-	public ApiResponse(Boolean success, String message, Object user) {
+	public ApiResponse(Boolean success, String message, UserResponse user) {
 		super();
 		this.success = success;
 		this.message = message;
@@ -34,11 +36,11 @@ public class ApiResponse {
 		this.message = message;
 	}
 
-	public Object getUser() {
+	public UserResponse getUser() {
 		return user;
 	}
 
-	public void setUser(Object user) {
+	public void setUser(UserResponse user) {
 		this.user = user;
 	}
 

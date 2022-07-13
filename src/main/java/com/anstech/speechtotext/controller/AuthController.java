@@ -68,8 +68,8 @@ public class AuthController {
 
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-		//		Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-		//				.orElseThrow(() -> new AppException("User Role not set."));
+		// Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
+		// .orElseThrow(() -> new AppException("User Role not set."));
 
 		// RoleName user_role = RoleName.valueOf(signUpRequest.getRole());
 		// Role userRole = roleRepository.findByName(user_role).orElseThrow(() -> new
@@ -78,10 +78,13 @@ public class AuthController {
 		// user.setRoles(Collections.singleton(userRole));
 
 		User result = userRepository.save(user);
+		UserResponse userResponse = new UserResponse(result.getId(), result.getFirstName(), result.getLastName(),
+				result.getMobile(), result.getEmail());
 
 		URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/users/{firstname}")
 				.buildAndExpand(result.getFirstName()).toUri();
-		return ResponseEntity.created(location).body(new ApiResponse(true, "User registered successfully"));
+		return ResponseEntity.created(location)
+				.body(new ApiResponse(true, "User registered successfully", userResponse));
 	}
 
 	@PostMapping("/signin")
@@ -91,10 +94,10 @@ public class AuthController {
 		User userObj = null;
 		Authentication authentication = null;
 		try {
-			authentication = authenticationManager.authenticate(
-					new UsernamePasswordAuthenticationToken(loginRequest.getMobileOrEmail(), loginRequest.getPassword()));
+			authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+					loginRequest.getMobileOrEmail(), loginRequest.getPassword()));
 			SecurityContextHolder.getContext().setAuthentication(authentication);
-		}catch(Exception e) {
+		} catch (Exception e) {
 			System.out.println("invalid username and password");
 			Map<String, String> map = new HashMap<>();
 			map.put("loggedIn", "false");
@@ -106,10 +109,10 @@ public class AuthController {
 		if (!user.isEmpty()) {
 			userObj = user.get();
 		}
-		UserResponse userDetails = new UserResponse(userObj.getId(), userObj.getFirstName(), userObj.getLastName(), userObj.getMobile(),
-				userObj.getEmail());
+		UserResponse userDetails = new UserResponse(userObj.getId(), userObj.getFirstName(), userObj.getLastName(),
+				userObj.getMobile(), userObj.getEmail());
 
 		String jwt = tokenProvider.generateToken(authentication);
-		return ResponseEntity.ok(new JwtAuthenticationResponse("true",jwt, "Bearer", userDetails));
+		return ResponseEntity.ok(new JwtAuthenticationResponse("true", jwt, "Bearer", userDetails));
 	}
 }
